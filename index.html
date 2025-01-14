@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>時間割</title>
+    <link rel="icon" href="https://pest-society.github.io/HP/file/favicon.ico" type="image/x-icon">
+    <link href="https://cdn.jsdelivr.net/npm/bulma@1.0.2/css/bulma.min.css" rel="stylesheet">
+    <style>
+      body {
+          font-family: Arial, sans-serif;
+          background-color: #f4f4f9;
+          color: #333;
+      }
+      header {
+          background-color: #0078d7;
+          color: white;
+          padding: 1rem;
+          text-align: center;
+      }
+      main {
+          padding: 1rem;
+      }
+      .schedule-container {
+          display: flex;
+          flex-wrap: wrap;
+          justify-content: space-around;
+          gap: 1rem;
+          margin-top: 2rem;
+      }
+      .schedule-card {
+          background: white;
+          border-radius: 8px;
+          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+          padding: 1rem;
+          width: 100%;
+          max-width: 800px;
+      }
+      .schedule-card h3 {
+          text-align: center;
+          color: white;
+          padding: 0.5rem;
+          border-radius: 8px 8px 0 0;
+          font-size: 1.5rem;
+      }
+      .schedule-card.a-week h3 {
+          background-color: #e63946; /* 赤 */
+      }
+      .schedule-card.b-week h3 {
+          background-color: #0078d7; /* 青 */
+      }
+      table {
+          width: 100%;
+          border-collapse: collapse;
+          font-size: 1.2rem;
+      }
+      table th, table td {
+          border: 1px solid #ddd;
+          padding: 0.8rem;
+          text-align: center;
+      }
+      table th {
+          background-color: #f4f4f9;
+          font-weight: bold;
+      }
+      .highlight-column {
+          background-color: #ffedc2; /* 今日の列に色を付ける */
+      }
+      @media (min-width: 1024px) {
+          .schedule-card {
+              width: 45%; /* 横並び */
+          }
+      }
+    </style>
+</head>
+<body>
+  <header class="has-background-primary">
+      <h1 class="title has-text-white">今日の時間割</h1>
+  </header>
+  <main>
+      <section id="schedule" class="container">
+          <div id="all-schedules" class="schedule-container">
+              <div id="schedule-a" class="schedule-card a-week">
+                  <h3>A週の時間割</h3>
+                  <table>
+                      <thead>
+                          <tr>
+                              <th>限目</th>
+                              <th>月曜日</th>
+                              <th>火曜日</th>
+                              <th>水曜日</th>
+                              <th>木曜日</th>
+                              <th>金曜日</th>
+                          </tr>
+                      </thead>
+                      <tbody>
+                          <!-- A週の時間割 -->
+                      </tbody>
+                  </table>
+              </div>
+              <div id="schedule-b" class="schedule-card b-week">
+                  <h3>B週の時間割</h3>
+                  <table>
+                      <thead>
+                          <tr>
+                              <th>限目</th>
+                              <th>月曜日</th>
+                              <th>火曜日</th>
+                              <th>水曜日</th>
+                              <th>木曜日</th>
+                              <th>金曜日</th>
+                          </tr>
+                      </thead>
+                      <tbody>
+                          <!-- B週の時間割 -->
+                      </tbody>
+                  </table>
+              </div>
+          </div>
+      </section>
+  </main>
+  <script>
+    const scheduleA = {
+        '月曜日': ['図形', '理科', '地理', '国語', '英会話'],
+        '火曜日': ['代数', '音楽', '英会話', '保体', '地学'],
+        '水曜日': ['技術', '図形', '国語', '世界史', '英語'],
+        '木曜日': ['保体', '日本史', '国語', '生物', '英語'],
+        '金曜日': ['家庭科', '美術', '代数', '英語', '道徳']
+    };
+
+    const scheduleB = {
+        '月曜日': ['代数', '理科', '英会話', '音楽', '国語'],
+        '火曜日': ['図形', '英語', '地理', '保体', '家庭科'],
+        '水曜日': ['美術', '国語', '英語', '地学', '代数'],
+        '木曜日': ['英語', '技術', '生物', '保体', '世界史'],
+        '金曜日': ['地理', '英語', '代数', '国語', '道徳']
+    };
+
+    function createScheduleTable(schedule, containerId, todayIndex) {
+        const tableBody = document.querySelector(`#${containerId} tbody`);
+        const tableHead = document.querySelector(`#${containerId} thead tr`);
+        tableBody.innerHTML = ''; // 初期化
+
+        // 曜日のヘッダーにクラスを適用
+        Array.from(tableHead.children).forEach((th, index) => {
+            if (index === todayIndex) {
+                th.classList.add('highlight-column');
+            }
+        });
+
+        for (let i = 0; i < 5; i++) {
+            const row = document.createElement('tr');
+            const periodCell = document.createElement('td');
+            periodCell.textContent = `${i + 1}限`;
+            row.appendChild(periodCell);
+
+            Object.keys(schedule).forEach((day, index) => {
+                const subjectCell = document.createElement('td');
+                subjectCell.textContent = schedule[day][i] || '';
+                if (index === todayIndex - 1) { // 今日の列
+                    subjectCell.classList.add('highlight-column');
+                }
+                row.appendChild(subjectCell);
+            });
+
+            tableBody.appendChild(row);
+        }
+    }
+
+    function getTodaySchedule() {
+        const days = ['日曜日', '月曜日', '火曜日', '水曜日', '木曜日', '金曜日', '土曜日'];
+        const today = new Date();
+        const dayOfWeek = today.getDay(); // 0:日曜日, 1:月曜日, ..., 6:土曜日
+        const weekType = getWeekType();
+
+        // 今日の曜日の列番号 (月曜日が2列目なので +1)
+        const todayIndex = dayOfWeek === 0 || dayOfWeek === 6 ? null : dayOfWeek;
+
+        createScheduleTable(scheduleA, 'schedule-a', todayIndex);
+        createScheduleTable(scheduleB, 'schedule-b', todayIndex);
+    }
+
+    function getWeekType() {
+        const baseDate = new Date(2025, 0, 5); // 2025年1月5日 (B週の開始日)
+        const endDate = new Date(2025, 2, 31); // 2025年3月31日 (終了日)
+        const today = new Date();
+
+        if (today > endDate) {
+            return null; // A/B週が終了
+        }
+
+        const diffInDays = Math.floor((today - baseDate) / (1000 * 60 * 60 * 24));
+        const weekNumber = Math.floor(diffInDays / 7);
+        return weekNumber % 2 === 0 ? 'B' : 'A';
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        getTodaySchedule();
+    });
+  </script>
+</body>
+</html>
